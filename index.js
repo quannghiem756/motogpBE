@@ -10,21 +10,9 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use('/calendar', calendarRouter);
+app.use(calendarRouter);
 
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
-app.post('/calendar', (req, res) => {
-    // res.send('This works!')
-    // res.send(req.body)
-    const newCalendar = new Calendar(req.body);
-    newUser.save()
-    .then(resp => {
-        res.send(resp);
-    })
-    .catch(error => {
-        res.send(error);
-    })
-})
