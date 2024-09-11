@@ -26,7 +26,7 @@ router.get('/calendar', async (req, res) => {
 // Get a single MotoGP event by ID
 router.get('/calendar/:id', async (req, res) => {
     try {
-        const event = await MotoGPEvent.findOne({ id: req.params.id });
+        const event = await Calendar.findOne({ id: req.params.id });
         if (event) {
             res.status(200).json(event);
         } else {
@@ -40,7 +40,7 @@ router.get('/calendar/:id', async (req, res) => {
 // Update a MotoGP event by ID
 router.put('/calendar/:id', async (req, res) => {
     try {
-        const updatedEvent = await MotoGPEvent.findOneAndUpdate(
+        const updatedEvent = await Calendar.findOneAndUpdate(
             { id: req.params.id },
             req.body,
             { new: true, runValidators: true }
@@ -58,7 +58,7 @@ router.put('/calendar/:id', async (req, res) => {
 // Delete a MotoGP event by ID
 router.delete('/calendar/:id', async (req, res) => {
     try {
-        const result = await MotoGPEvent.deleteOne({ id: req.params.id });
+        const result = await Calendar.deleteOne({ id: req.params.id });
         if (result.deletedCount > 0) {
             res.status(200).json({ message: 'Event deleted' });
         } else {
