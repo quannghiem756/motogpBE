@@ -9,4 +9,4 @@ mongoose.connect('mongodb+srv://quannghiem100:iAAimy99vLhoZuAH@cluster0.thfyy.mo
   const db = mongoose.connection;
   db.on('error', (error) => console.error(error));
   db.once('open', () => console.log('Connected to Database'));
-  
+

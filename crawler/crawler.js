@@ -41,7 +41,7 @@ async function grabImageSources(url) {
 
         // Extract image sources using Puppeteer's page.evaluate()
         const imageSources = await page.evaluate(() => {
-            const images = document.querySelectorAll('div.calendar-listings__month.u-show div.calendar-listing_track-sponsor-logo.js-sponsor-logo img');
+            const images = document.querySelectorAll('div.calendar-listing__track-sponsor-logo.js-sponsor-logo img');
             return Array.from(images).map(img => img.src);
         });
 

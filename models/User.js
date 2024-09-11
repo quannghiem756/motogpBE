@@ -34,6 +34,7 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
+//Hashing the user's password
 UserSchema.pre('save', async function(next) {
   const user = this;
 
@@ -61,5 +62,6 @@ UserSchema.statics.findByCredentials = async (email, password) => {
 
   return user;
 }
-module.exports = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
+module.exports = User;
 
