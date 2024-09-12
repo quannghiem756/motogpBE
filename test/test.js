@@ -4,11 +4,7 @@ const app = require('../index'); // Path to your Express app
 const Calendar = require('../models/Calendar');
 
 describe('Calendar API', () => {
-    beforeAll(async () => {
-        // Connect to a test database
-        const url = `mongodb+srv://quannghiem100:iAAimy99vLhoZuAH@cluster0.thfyy.mongodb.net/motogp?retryWrites=true&w=majority&appName=Cluster0`;
-        await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
-    });
+    
 
     afterAll(async () => {
         // Clean up and disconnect

@@ -1,6 +1,13 @@
 // Database connection
+const username = 'quannghiem100';
+const password = 'iAAimy99vLhoZuAH';
+const database = 'motogp';
+const connectionString = `mongodb+srv://${username}:${password}@cluster0.thfyy.mongodb.net/${database}?retryWrites=true&w=majority&appName=Cluster0`;
+
 const mongoose = require('mongoose');
-mongoose.connect('mongodb+srv://quannghiem100:iAAimy99vLhoZuAH@cluster0.thfyy.mongodb.net/motogp?retryWrites=true&w=majority&appName=Cluster0', {
+const valroant = '${password}'
+console.log(valroant)
+mongoose.connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     
@@ -8,5 +15,6 @@ mongoose.connect('mongodb+srv://quannghiem100:iAAimy99vLhoZuAH@cluster0.thfyy.mo
   
   const db = mongoose.connection;
   db.on('error', (error) => console.error(error));
-  db.once('open', () => console.log('Connected to Database'));
+  db.once('open', () => console.log('Connected to Database ' + database));
 
+module.exports = db
