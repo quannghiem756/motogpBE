@@ -1,7 +1,6 @@
 const express = require("express")
 const path = require("path")
 const calendarRouter  = require("./routes/calendarController");
-const riderRouter  = require("./routes/riderController");
 require('./db/mongoose');
 const bodyParser = require('body-parser');
 const app = express();
@@ -10,7 +9,6 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use(riderRouter);
 app.use(calendarRouter);
 
 // Start server
