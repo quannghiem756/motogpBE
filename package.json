@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles"
+    "test": "jest"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/1.test.js"
+    ]
   },
   "keywords": [],
   "author": "",

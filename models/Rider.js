@@ -52,8 +52,6 @@ const RiderSchema = new mongoose.Schema({
         type: String,
         required: false // Không bắt buộc
     }
-}, {
-    timestamps: true // Tự động thêm createdAt và updatedAt
 });
 
 const Rider = mongoose.model('Rider', RiderSchema);

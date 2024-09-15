@@ -27,7 +27,7 @@ router.get('/riders', async (req, res) => {
 // Lấy tay đua theo ID
 router.get('/riders/:id', async (req, res) => {
     try {
-        const rider = await Rider.findById(req.params.id);
+        const rider = await Rider.findOne({ id: req.params.id });
         if (!rider) {
             return res.status(404).send('Rider not found');
         }
@@ -40,20 +40,21 @@ router.get('/riders/:id', async (req, res) => {
 // Cập nhật tay đua theo ID
 router.patch('/riders/:id', async (req, res) => {
     try {
-        const rider = await Rider.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-        if (!rider) {
-            return res.status(404).send('Rider not found');
+        const updatedRider = await Rider.findOneAndUpdate({ id: req.params.id }, req.body, { new: true, runValidators: true });
+        if (updatedRider) {
+            res.status(200).json(updatedRider);
+        } else {
+            res.status(404).json({ message: 'Rider not found' });
         }
-        res.status(200).send(rider);
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).json({ error: error.message });
     }
 });
 
 // Xóa tay đua theo ID
 router.delete('/riders/:id', async (req, res) => {
     try {
-        const rider = await Rider.findByIdAndDelete(req.params.id);
+        const rider = await Rider.deleteOne({ id: req.params.id });
         if (!rider) {
             return res.status(404).send('Rider not found');
         }

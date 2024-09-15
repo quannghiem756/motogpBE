@@ -91,3 +91,4 @@ describe('Calendar API', () => {
         expect(response.body.message).toBe('Event not found');
     });
 });
+
