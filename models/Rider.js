@@ -12,9 +12,9 @@ const RiderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    team: {
-        type: String,
-        required: true
+    teamId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team'
     },
     championships: {
         type: Number,
