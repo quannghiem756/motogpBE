@@ -1,7 +1,7 @@
 // Database connection
 const username = 'quannghiem100';
 const password = 'iAAimy99vLhoZuAH';
-const database = 'motogp';
+const database = 'test';
 const connectionString = `mongodb+srv://${username}:${password}@cluster0.thfyy.mongodb.net/${database}?retryWrites=true&w=majority&appName=Cluster0`;
 
 const mongoose = require('mongoose');
