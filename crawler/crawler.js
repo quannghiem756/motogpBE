@@ -5,7 +5,7 @@ require('../db/mongoose');
 async function grabImageSources(url) {
   // Launch the browser
   const browser = await puppeteer.launch({
-    headless: true
+    headless: false
   });
 
   const page = await browser.newPage();
@@ -37,11 +37,13 @@ async function grabImageSources(url) {
       const sponsoredImages = document.querySelectorAll('div.calendar-listing__track-sponsor-logo img');
       const circuitTrackImages = document.querySelectorAll('div.calendar-listing__track-layout.js-circuit-track img');
       const eventImages = document.querySelectorAll('div.calendar-listing__track-image.js-circuit-image img');
+      const riderImages = document.querySelectorAll('div.rider-image img');
 
       return {
         sponsoredImages: Array.from(sponsoredImages).map(img => img.src),
         circuitTrackImages: Array.from(circuitTrackImages).map(img => img.src),
-        eventImages: Array.from(eventImages).map(img => img.src)
+        eventImages: Array.from(eventImages).map(img => img.src),
+        riderImages: Array.from(riderImages).map(img => img.src)
       };
     });
 
@@ -72,6 +74,11 @@ async function grabImageSources(url) {
       await saveImage(imageUrl, 'eventImage');
     }
 
+    // Save riderImages
+    for (const imageUrl of imageSources.riderImages) {
+      await saveImage(imageUrl, 'riderImage');
+    }
+
     return imageSources;
   } catch (error) {
     console.error(`Error fetching URL: ${error.message}`);
@@ -80,7 +87,14 @@ async function grabImageSources(url) {
   }
 }
 
-const urlToCrawl = 'https://www.motogp.com/en/calendar';
-grabImageSources(urlToCrawl).then(links => {
-  console.log('Found links:', links);
-});
+const urlsToCrawl = [
+  'https://www.motogp.com/en/calendar',
+  'https://www.motogp.com/en/riders/motogp'
+];
+
+Promise.all(urlsToCrawl.map(url => grabImageSources(url)))
+  .then(links => {
+    console.log('Found links:', links);
+  });
+
+
