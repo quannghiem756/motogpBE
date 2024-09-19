@@ -26,7 +26,7 @@ router.get('/calendar', async (req, res) => {
 // Get a single MotoGP event by ID
 router.get('/calendar/:id', async (req, res) => {
     try {
-        const event = await Calendar.findOne({ id: req.params.id });
+        const event =   await Calendar.findOne({ id: req.params.id });
         if (event) {
             res.status(200).json(event);
         } else {

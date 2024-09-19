@@ -5,7 +5,7 @@ const database = 'test';
 const connectionString = `mongodb+srv://${username}:${password}@cluster0.thfyy.mongodb.net/${database}?retryWrites=true&w=majority&appName=Cluster0`;
 
 const mongoose = require('mongoose');
-console.log(valroant)
+
 mongoose.connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
