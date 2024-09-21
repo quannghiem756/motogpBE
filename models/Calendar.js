@@ -13,11 +13,11 @@ const CalendarSchema = new mongoose.Schema({
         required: true
     },
     date_end: {
-        type: Date,
+        type: String,
         required: true
     },
     date_start: {
-        type: Date,
+        type: String,
         required: true
     },
     name: {
@@ -30,7 +30,7 @@ const CalendarSchema = new mongoose.Schema({
     },
     year: {
         type: Number,
-        required: true
+        required: false
     },
     circuit_name: {
         type: String,
@@ -39,6 +39,19 @@ const CalendarSchema = new mongoose.Schema({
     country_name: {
         type: String,
         required: true
+    },
+    circuit_img: {
+        type: String,
+        required: false
+    },
+    sponsored_img: {
+        type: String,
+        required: false
+    },
+
+    circuit_track_img: {
+        type: String,
+        required: false
     }
 });
 

@@ -16,42 +16,38 @@ const RiderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team'
     },
-    championships: {
-        type: Number,
-        default: 0
+    constructor_name: {
+        type: String,
+        require: true
     },
-    raceWins: {
-        type: Number,
-        default: 0
+    rider_country_iso: {
+        type: String,
+        require: true
     },
-    podiums: {
+    year: {
         type: Number,
-        default: 0
+        require: true
     },
     totalPoints: {
         type: Number,
         default: 0
     },
-    dateOfBirth: {
-        type: Date,
+    position: {
+        type: Number,
         required: true
     },
-    nationality: {
+    team_color:{
         type: String,
-        required: true
+        required: false
     },
-    active: {
-        type: Boolean,
-        default: true
+    text_color:{
+        type: String,
+        required: false
     },
     imageUrl: {
         type: String,
         required: false
     },
-    story: {  // Thêm trường câu chuyện
-        type: String,
-        required: false // Không bắt buộc
-    }
 });
 
 const Rider = mongoose.model('Rider', RiderSchema);
