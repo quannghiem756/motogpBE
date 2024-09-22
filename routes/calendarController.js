@@ -23,6 +23,7 @@ router.get('/calendar', async (req, res) => {
     }
 });
 
+
 // Get a single MotoGP event by ID
 router.get('/calendar/:id', async (req, res) => {
     try {

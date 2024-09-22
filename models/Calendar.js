@@ -52,6 +52,10 @@ const CalendarSchema = new mongoose.Schema({
     circuit_track_img: {
         type: String,
         required: false
+    },
+    flag_img: {
+        type: String,
+        required: false
     }
 });
 

@@ -38,12 +38,14 @@ async function grabImageSources(url) {
       const circuitTrackImages = document.querySelectorAll('div.calendar-listing__track-layout.js-circuit-track img');
       const eventImages = document.querySelectorAll('div.calendar-listing__track-image.js-circuit-image img');
       const riderImages = document.querySelectorAll('div.rider-image img');
+      const flagImages = document.querySelectorAll('div.calendar-listing__location-flag img');
 
       return {
         sponsoredImages: Array.from(sponsoredImages).map(img => img.src),
         circuitTrackImages: Array.from(circuitTrackImages).map(img => img.src),
         eventImages: Array.from(eventImages).map(img => img.src),
-        riderImages: Array.from(riderImages).map(img => img.src)
+        riderImages: Array.from(riderImages).map(img => img.src),
+        flagImages: Array.from(flagImages).map(img => img.src)
       };
     });
 
@@ -77,6 +79,10 @@ async function grabImageSources(url) {
     // Save riderImages
     for (const imageUrl of imageSources.riderImages) {
       await saveImage(imageUrl, 'riderImage');
+    }
+    
+    for (const imageUrl of imageSources.flagImages) {
+      await saveImage(imageUrl, 'flagImage');
     }
 
     return imageSources;
