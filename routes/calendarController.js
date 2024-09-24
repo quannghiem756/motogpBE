@@ -3,7 +3,7 @@ const router = express.Router();
 const Calendar = require('../models/Calendar'); // Path to your Mongoose model
 
 // Create a new MotoGP event
-router.post('/calendar', async (req, res) => {
+router.post('/api/calendar', async (req, res) => {
     try {
         const newEvent = new Calendar(req.body);
         await newEvent.save();
@@ -14,7 +14,7 @@ router.post('/calendar', async (req, res) => {
 });
 
 // Get all MotoGP events
-router.get('/calendar', async (req, res) => {
+router.get('/api/calendar', async (req, res) => {
     try {
         const events = await Calendar.find();
         res.status(200).json(events);
@@ -23,11 +23,10 @@ router.get('/calendar', async (req, res) => {
     }
 });
 
-
 // Get a single MotoGP event by ID
-router.get('/calendar/:id', async (req, res) => {
+router.get('/api/calendar/:id', async (req, res) => {
     try {
-        const event =   await Calendar.findOne({ id: req.params.id });
+        const event = await Calendar.findOne({ id: req.params.id });
         if (event) {
             res.status(200).json(event);
         } else {
@@ -39,7 +38,7 @@ router.get('/calendar/:id', async (req, res) => {
 });
 
 // Update a MotoGP event by ID
-router.put('/calendar/:id', async (req, res) => {
+router.put('/api/calendar/:id', async (req, res) => {
     try {
         const updatedEvent = await Calendar.findOneAndUpdate(
             { id: req.params.id },
@@ -57,7 +56,7 @@ router.put('/calendar/:id', async (req, res) => {
 });
 
 // Delete a MotoGP event by ID
-router.delete('/calendar/:id', async (req, res) => {
+router.delete('/api/calendar/:id', async (req, res) => {
     try {
         const result = await Calendar.deleteOne({ id: req.params.id });
         if (result.deletedCount > 0) {

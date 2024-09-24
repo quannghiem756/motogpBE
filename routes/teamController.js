@@ -5,7 +5,7 @@ const Team = require('../models/Teams'); // Đường dẫn đến mô hình Tea
 const router = new express.Router();
 
 // Tạo đội mới
-router.post('/teams', async (req, res) => {
+router.post('/api/teams', async (req, res) => {
     try {
         const team = new Team(req.body);
         await team.save();
@@ -16,7 +16,7 @@ router.post('/teams', async (req, res) => {
 });
 
 // Lấy danh sách tất cả đội
-router.get('/teams', async (req, res) => {
+router.get('/api/teams', async (req, res) => {
     try {
         const teams = await Team.find();
         res.status(200).send(teams);
@@ -26,7 +26,7 @@ router.get('/teams', async (req, res) => {
 });
 
 // Lấy đội theo ID
-router.get('/teams/:id', async (req, res) => {
+router.get('/api/teams/:id', async (req, res) => {
     try {
         const team = await Team.findOne({ _id: req.params.id });
         if (!team) {
@@ -39,7 +39,7 @@ router.get('/teams/:id', async (req, res) => {
 });
 
 // Cập nhật đội theo ID
-router.patch('/teams/:id', async (req, res) => {
+router.patch('/api/teams/:id', async (req, res) => {
     try {
         const updatedTeam = await Team.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true, runValidators: true });
         if (updatedTeam) {
