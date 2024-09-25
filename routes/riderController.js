@@ -4,7 +4,7 @@ const Rider = require('../models/Rider'); // Đường dẫn đến mô hình Ri
 const router = new express.Router();
 
 // Tạo tay đua mới
-router.post('/riders', async (req, res) => {
+router.post('/api/riders', async (req, res) => {
     try {
         const rider = new Rider(req.body);
         await rider.save();
@@ -15,7 +15,7 @@ router.post('/riders', async (req, res) => {
 });
 
 // Lấy danh sách tất cả tay đua
-router.get('/riders', async (req, res) => {
+router.get('/api/riders', async (req, res) => {
     try {
         const riders = await Rider.find();
         res.status(200).send(riders);
@@ -25,7 +25,7 @@ router.get('/riders', async (req, res) => {
 });
 
 // Lấy tay đua theo ID
-router.get('/riders/:id', async (req, res) => {
+router.get('/api/riders/:id', async (req, res) => {
     try {
         const rider = await Rider.findOne({ id: req.params.id });
         if (!rider) {
@@ -38,7 +38,7 @@ router.get('/riders/:id', async (req, res) => {
 });
 
 // Cập nhật tay đua theo ID
-router.patch('/riders/:id', async (req, res) => {
+router.patch('/api/riders/:id', async (req, res) => {
     try {
         const updatedRider = await Rider.findOneAndUpdate({ id: req.params.id }, req.body, { new: true, runValidators: true });
         if (updatedRider) {
@@ -52,7 +52,7 @@ router.patch('/riders/:id', async (req, res) => {
 });
 
 // Xóa tay đua theo ID
-router.delete('/riders/:id', async (req, res) => {
+router.delete('/api/riders/:id', async (req, res) => {
     try {
         const rider = await Rider.deleteOne({ id: req.params.id });
         if (!rider) {
