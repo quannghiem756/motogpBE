@@ -4,6 +4,7 @@ const calendarRouter  = require("./routes/calendarController");
 const riderRouter  = require("./routes/riderController");
 const teamRouter  = require("./routes/teamController");
 const imageRouter = require("./routes/imageController");
+const userRouter = require("./routes/userController");
 require('./db/mongoose');
 const bodyParser = require('body-parser');
 const app = express();
@@ -18,7 +19,7 @@ app.use(riderRouter);
 app.use(calendarRouter);
 app.use(teamRouter);
 app.use(imageRouter);
-
+app.use(userRouter);
 // Serve static files from the React app
 // app.use(express.static(path.join(__dirname, '/build')));
 

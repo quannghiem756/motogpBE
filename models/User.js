@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { PassThrough } = require('supertest/lib/test');
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -23,7 +24,10 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
     validate: {
-      validator: mongoose.validator.isEmail,
+      validator: (email) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+      },
       message: 'Please fill a valid email address'
     }
   },
@@ -35,7 +39,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 //Hashing the user's password
-UserSchema.pre('save', async function(next) {
+UserSchema.pre('save', async function (next) {
   const user = this;
 
   if (user.isModified('password')) {
@@ -47,20 +51,28 @@ UserSchema.pre('save', async function(next) {
 
   next();
 });
+// Find user by email and password
 UserSchema.statics.findByCredentials = async (email, password) => {
-  const user = await this.findOne({ email });
-
-  if (!user) {
+  try {
+    const user = await User.findOne({ email }).select('password');
+    if (!user) {
       throw new Error('Unable to login!');
+    }
+
+    const isCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isCorrect) {
+      throw new Error('Unable to login!');
+    }
+
+    return user;
+  }
+  catch (error) {
+    console.log(error);
+    throw error;
   }
 
-  const isCorrect = await bcrypt.compare(password, user.password);
 
-  if (!isCorrect) {
-      throw new Error('Unable to login!');
-  }
-
-  return user;
 }
 const User = mongoose.model('User', UserSchema);
 module.exports = User;
