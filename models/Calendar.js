@@ -56,7 +56,11 @@ const CalendarSchema = new mongoose.Schema({
     flag_img: {
         type: String,
         required: false
-    }
+    },
+    sessions: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Session' // Reference to the Session model
+    }]
 });
 
 const Calendar = mongoose.model('Calendar', CalendarSchema);
