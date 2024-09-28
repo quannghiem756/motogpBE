@@ -2,31 +2,20 @@
 const mongoose = require('mongoose');
 
 const SessionSchema = new mongoose.Schema({
-    name: {
+    sessionName: {
         type: String,
         required: true
     },
-    date: {
+    sessionDate: {
         type: Date,
         required: true
     },
-    sessions: [
-        {
-            sessionName: {
-                type: String,
-                required: true
-            },
-            sessionDate: {
-                type: Date,
-                required: true
-            },
-            category: {
-                type: String,
-                required: true
-            },
-            results: [ResultSchema] // Embed results in the session
-        }
-    ]
+    category: {
+        type: String,
+        required: true
+    },
+    results: [{type: mongoose.Schema.Types.ObjectId,
+        ref: 'Result'}] 
 });
 
 const Session = mongoose.model('Session', SessionSchema);
