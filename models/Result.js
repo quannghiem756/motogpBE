@@ -29,7 +29,12 @@ const ResultSchema = new mongoose.Schema({
     team: {
         type: String,
         required: true
+    },
+    sessionId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Session' 
     }
+    
 });
 
 const Result = mongoose.model('Result', ResultSchema);

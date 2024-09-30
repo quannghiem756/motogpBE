@@ -14,8 +14,11 @@ const SessionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    results: [{type: mongoose.Schema.Types.ObjectId,
-        ref: 'Result'}] 
+    eventId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Calendar'
+    },
+    deleteFromConstraint: true
 });
 
 const Session = mongoose.model('Session', SessionSchema);

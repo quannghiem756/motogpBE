@@ -57,10 +57,7 @@ const CalendarSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    sessions: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Session' // Reference to the Session model
-    }]
+    deleteFromConstraint: true
 });
 
 const Calendar = mongoose.model('Calendar', CalendarSchema);
