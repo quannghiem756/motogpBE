@@ -18,7 +18,6 @@ const SessionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Calendar'
     },
-    deleteFromConstraint: true
 });
 
 const Session = mongoose.model('Session', SessionSchema);
