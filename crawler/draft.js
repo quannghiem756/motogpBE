@@ -51,7 +51,7 @@ async function fetchAndStoreMotoGPEvents() {
 async function fetchAndStoreMotoGPRiders() {
     const apiUrl = 'https://api.micheleberardi.com/racing/v1.0/motogp-world-standing-riders?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9&year=2024&categoryid=e8c110ad-64aa-4e8e-8a86-f2f152f6a942';
     const mongoUri = 'mongodb+srv://quannghiem100:iAAimy99vLhoZuAH@cluster0.thfyy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'; // Replace with your MongoDB Atlas connection string
-    const dbName = 'motogp'; // Replace with your database name
+    const dbName = 'test'; // Replace with your database name
     const collectionName = 'riders'; // Change to 'riders'
 
     try {
@@ -62,7 +62,7 @@ async function fetchAndStoreMotoGPRiders() {
         // Extract only the desired fields
         const filteredRiders = riders.map(rider => ({
             md5: rider.md5,
-            classification_id: rider.classification_id,
+            id: rider.classification_id,
             constructor_name: rider.constructor_name,
             rider_country_iso: rider.rider_country_iso,
             rider_full_name: rider.rider_full_name,
@@ -98,7 +98,7 @@ async function fetchAndStoreMotoGPRiders() {
 }
 
 // Call the function
-// fetchAndStoreMotoGPRiders();
+fetchAndStoreMotoGPRiders();
 
 // Call the function
-fetchAndStoreMotoGPEvents();
+// fetchAndStoreMotoGPEvents();
