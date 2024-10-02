@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
+const uuid = require('uuid');
 
 const ResultSchema = new mongoose.Schema({
-    riderId: {
-        type: mongoose.Schema.Types.ObjectId,
+    riderID: {
+        type: String,
         required: true,
         ref: 'Rider' // Assuming you have a Rider model
+    },
+    id:{
+        type: String,
+        default: () => uuid.v4(),
+        required: true,
+        unique: true
     },
     position: {
         type: Number,
@@ -18,7 +25,7 @@ const ResultSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    fullname: {
+    fullName: {
         type: String,
         required: true
     },
@@ -31,7 +38,9 @@ const ResultSchema = new mongoose.Schema({
         required: true
     },
     sessionId:{
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
+        // unique: true,
+        default: () => uuid.v4(),
         ref: 'Session' 
     }
     

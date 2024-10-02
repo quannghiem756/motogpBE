@@ -57,7 +57,7 @@ const CalendarSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    deleteFromConstraint: true
+    
 });
 
 const Calendar = mongoose.model('Calendar', CalendarSchema);

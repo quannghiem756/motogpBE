@@ -120,5 +120,5 @@ async function getResult() {
 
     
 }}
-
+    
 getResult().then(() => console.log('Data retrieved successfully')).catch(err => console.error(err))

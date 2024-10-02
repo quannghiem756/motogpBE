@@ -3,9 +3,10 @@ const Session = require('../models/Session'); // Adjust the import path if neces
 const router = express.Router();
 
 // Create a new session
-router.post('/sessions', async (req, res) => {
+router.post('/api/sessions', async (req, res) => {
     try {
         const session = new Session(req.body);
+        console.log(session)
         await session.save();
         res.status(201).send(session);
     } catch (error) {
@@ -14,7 +15,7 @@ router.post('/sessions', async (req, res) => {
 });
 
 // Get all sessions
-router.get('/sessions', async (req, res) => {
+router.get('/api/sessions', async (req, res) => {
     try {
         const sessions = await Session.find();
         res.send(sessions);
@@ -24,7 +25,7 @@ router.get('/sessions', async (req, res) => {
 });
 
 // Get a single session by ID
-router.get('/sessions/:id', async (req, res) => {
+router.get('/api/sessions/:id', async (req, res) => {
     try {
         const session = await Session.findById(req.params.id);
         if (!session) {
@@ -37,39 +38,34 @@ router.get('/sessions/:id', async (req, res) => {
 });
 
 // Update a session by ID
-router.patch('/sessions/:id', async (req, res) => {
-    const updates = Object.keys(req.body);
-    const allowedUpdates = ['sessionName', 'sessionDate', 'category', 'eventId'];
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
-
-    if (!isValidOperation) {
-        return res.status(400).send({ error: 'Invalid updates!' });
-    }
-
+router.put('/api/sessions/:id', async (req, res) => {
     try {
-        const session = await Session.findById(req.params.id);
-        if (!session) {
-            return res.status(404).send();
+        const updatedSession = await Session.findOneAndUpdate(
+            { id: req.params.id },
+            req.body,
+            { new: true, runValidators: true }
+        );
+        if (updatedSession) {
+            res.status(200).json(updatedSession);
+        } else {
+            res.status(404).json({ message: 'Event not found' });
         }
-
-        updates.forEach(update => session[update] = req.body[update]);
-        await session.save();
-        res.send(session);
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).json({ error: error.message });
     }
 });
 
 // Delete a session by ID
-router.delete('/sessions/:id', async (req, res) => {
+router.delete('/api/sessions/:id', async (req, res) => {
     try {
-        const session = await Session.findByIdAndDelete(req.params.id);
-        if (!session) {
-            return res.status(404).send();
+        const result = await Session.deleteOne({ id: req.params.id });
+        if (result.deletedCount > 0) {
+            res.status(200).json({ message: 'Event deleted' });
+        } else {
+            res.status(404).json({ message: 'Event not found' });
         }
-        res.send(session);
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({ error: error.message });
     }
 });
 

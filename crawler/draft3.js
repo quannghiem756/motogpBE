@@ -53,25 +53,25 @@ const generateMockData = async () => {
                 sessionName: 'Qualifying',
                 sessionDate: new Date('2023-10-01T15:00:00Z'),
                 category: 'Qualifying',
-                eventId: calendarDocs[0]._id // Link to the first calendar
+                eventId: calendarDocs[0].id // Link to the first calendar
             },
             {
                 sessionName: 'Race',
                 sessionDate: new Date('2023-10-02T14:00:00Z'),
                 category: 'Race',
-                eventId: calendarDocs[0]._id // Link to the first calendar
+                eventId: calendarDocs[0].id // Link to the first calendar
             },
             {
                 sessionName: 'Free Practice',
                 sessionDate: new Date('2023-09-02T15:00:00Z'),
                 category: 'Free Practice',
-                eventId: calendarDocs[1]._id // Link to the second calendar
+                eventId: calendarDocs[1].id // Link to the second calendar
             },
             {
                 sessionName: 'Race',
                 sessionDate: new Date('2023-09-04T14:00:00Z'),
                 category: 'Race',
-                eventId: calendarDocs[1]._id // Link to the second calendar
+                eventId: calendarDocs[1].id // Link to the second calendar
             }
         ];
 
@@ -88,7 +88,7 @@ const generateMockData = async () => {
                 fullname: 'Valentino Rossi',
                 flag: 'https://example.com/italy_flag.jpg',
                 team: 'Yamaha',
-                sessionId: sessionDocs[0]._id // Link to the first session
+                sessionId: sessionDocs[0].id // Link to the first session
             },
             {
                 riderId: new mongoose.Types.ObjectId(), // Replace with actual Rider IDs
@@ -98,7 +98,7 @@ const generateMockData = async () => {
                 fullname: 'Marc Márquez',
                 flag: 'https://example.com/spain_flag.jpg',
                 team: 'Honda',
-                sessionId: sessionDocs[1]._id // Link to the second session
+                sessionId: sessionDocs[1].id // Link to the second session
             },
             {
                 riderId: new mongoose.Types.ObjectId(), // Replace with actual Rider IDs
@@ -108,7 +108,7 @@ const generateMockData = async () => {
                 fullname: 'Jorge Lorenzo',
                 flag: 'https://example.com/spain_flag.jpg',
                 team: 'Ducati',
-                sessionId: sessionDocs[2]._id // Link to the third session
+                sessionId: sessionDocs[2].id // Link to the third session
             },
             {
                 riderId: new mongoose.Types.ObjectId(), // Replace with actual Rider IDs
@@ -118,7 +118,7 @@ const generateMockData = async () => {
                 fullname: 'Andrea Dovizioso',
                 flag: 'https://example.com/italy_flag.jpg',
                 team: 'Yamaha',
-                sessionId: sessionDocs[3]._id // Link to the fourth session
+                sessionId: sessionDocs[3].id // Link to the fourth session
             },
             {
                 riderId: new mongoose.Types.ObjectId(), // Replace with actual Rider IDs
@@ -128,7 +128,7 @@ const generateMockData = async () => {
                 fullname: 'Danilo Petrucci',
                 flag: 'https://example.com/italy_flag.jpg',
                 team: 'Ducati',
-                sessionId: sessionDocs[3]._id // Link to the fourth session
+                sessionId: sessionDocs[3].id // Link to the fourth session
             }
         ];
 
@@ -153,7 +153,7 @@ const getSessionsByEventName = async (eventName) => {
         }
 
         // Find sessions linked to the calendar's ID
-        const sessions = await Session.find({ eventId: calendar._id });
+        const sessions = await Session.find({ eventId: calendar.id });
 
         if (sessions.length === 0) {
             console.log(`No sessions found for event "${eventName}".`);
@@ -169,20 +169,44 @@ const getSessionsByEventName = async (eventName) => {
     }
 };
 
-// // Usage
+// Usage
 // getSessionsByEventName('Italian Grand Prix').then(sessions => {
 //     console.log('Sessions for Italian Grand Prix:', sessions);
 // });
 //Example of an async function
 const deleteEvent = async () => {
-    try{
-        const calendarIdToDelete = '66fac243d99bae9c78fe2399' // Replace with the actual calendar ID to delete
-        console.log(await Calendar.findByIdAndDelete(calendarIdToDelete))
-    }catch(error) {
-        console.error('Error deleting calendar:', error)
+    try {
+        const calendarIdToDelete = '66fadf049795a4a91779f482'; // Replace with the actual calendar ID to delete
+        
+        // Find the calendar to get its sessions
+        const calendar = await Calendar.findById(calendarIdToDelete);
+        if (!calendar) {
+            console.log('Calendar not found.');
+            return;
+        }
+
+        // Delete sessions associated with the calendar
+        await Session.deleteMany({ eventId: calendar._id });
+        console.log(`Deleted sessions associated with calendar ${calendar.name}`);
+
+        // Delete results associated with the sessions
+        await Result.deleteMany({ sessionId: { $in: calendar.sessionIds } }); // If results reference sessions
+        console.log(`Deleted results associated with the sessions of calendar ${calendar.name}`);
+
+        // Finally, delete the calendar
+        const deletedCalendar = await Calendar.findByIdAndDelete(calendarIdToDelete);
+        console.log('Deleted calendar:', deletedCalendar);
+    } catch (error) {
+        console.error('Error deleting calendar and associated data:', error);
     }
-}
+};
+
+// Call deleteEvent
+// deleteEvent();
+
+
 // deleteEvent()
 
 generateMockData();
+
 
