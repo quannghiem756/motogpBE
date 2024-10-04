@@ -31,6 +31,9 @@ const Calendar = require('../models/Calendar');
 //     }
 // });
 
+// Function to calculatePoints based on rider's time in each session
+
+
 router.get('/api/result', async (req, res) => {
     try {
         const sessions = await Result.find();
@@ -43,9 +46,9 @@ router.get('/api/result', async (req, res) => {
 // Function to create a new result
 router.post('/api/result', async (req, res) => {
     try {
-        console.log(req.body)
+        
         const result = new Result(req.body);
-        console.log(result)
+        
         await result.save();
         res.status(201).send(result);
     } catch (error) {

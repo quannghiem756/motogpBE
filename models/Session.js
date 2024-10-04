@@ -12,7 +12,7 @@ const SessionSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    sessionDate: {
+    sessionDate: {  
         type: Date,
         required: false
     },
@@ -26,6 +26,8 @@ const SessionSchema = new mongoose.Schema({
         ref: 'Calendar'
     },
 });
+
+
 
 const Session = mongoose.model('Session', SessionSchema);
 

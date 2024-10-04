@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const uuid = require('uuid');
+const Session = require('./Session') // Assuming session model is in the same directory
+const Rider = require('./Rider') // Assuming rider model is in the same directory
 
 const ResultSchema = new mongoose.Schema({
     riderID: {
@@ -15,7 +17,7 @@ const ResultSchema = new mongoose.Schema({
     },
     position: {
         type: Number,
-        required: true
+        required: false
     },
     time: {
         type: String,
@@ -42,9 +44,175 @@ const ResultSchema = new mongoose.Schema({
         // unique: true,
         default: () => uuid.v4(),
         ref: 'Session' 
+    },
+    points: {
+        type: Number,
     }
     
 });
+
+function convertTime(time) {
+    const timeParts = time.split(':');
+    if (timeParts.length !== 3) {
+        throw new Error('Invalid time format. Expected format: m:s:ms');
+    }
+
+    const minutes = parseInt(timeParts[0], 10);
+    const seconds = parseInt(timeParts[1], 10);
+    const milliseconds = parseInt(timeParts[2], 10);
+
+    // Convert total time to seconds
+    const totalSeconds = minutes * 60 + seconds + milliseconds / 1000;
+
+    return totalSeconds
+}
+
+function assignPoints(finishTimes, raceType) {
+    const mainRacePoints = [25, 20, 16, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]; // Top 15 finishers
+    const sprintRacePoints = [12, 9, 7, 6, 5, 4, 3, 2, 1]; // Top 9 finishers
+
+    // Create an array of rider indices sorted by their finish times
+    const sortedRiders = finishTimes
+        .map((time, index) => ({ index, time }))
+        .sort((a, b) => a.time - b.time)
+        .map(rider => rider.index);
+
+    // Select the appropriate points system
+    let points;
+    if (raceType === 'RAC') {
+        points = mainRacePoints;
+    } else if (raceType === 'SPR') {
+        points = sprintRacePoints;
+    } else {
+        throw new Error("Invalid race type. Choose either 'main' or 'sprint'.");
+    }
+
+    // Assign points to riders based on their finishing position
+    const riderPoints = {};
+    sortedRiders.forEach((riderIndex, position) => {
+        if (position < points.length) {
+            riderPoints[riderIndex] = points[position];
+        } else {
+            riderPoints[riderIndex] = 0; // No points for riders outside the point positions
+        }
+    });
+
+    return riderPoints;
+}
+
+// To track if an update is in progress
+
+let isUpdating = false; // Move this outside to control updates globally
+
+async function updatePointsForSession(sessionId) {
+    if (isUpdating) return; // Prevent re-entry if updating is in progress
+
+    const session = await Session.findOne({ id: sessionId });
+    if (!session) {
+        console.error("Session not found.");
+        return;
+    }
+
+    // Fetch all results for the session
+    const results = await Result.find({ sessionId }).sort({ time: 1 });
+    const finishTimes = results.map(result => convertTime(result.time));
+    const points = assignPoints(finishTimes, session.sessionName);
+
+    isUpdating = true; // Set flag to indicate update is in progress
+
+    // Update results with calculated points
+    for (let index in results) {
+        results[index].points = points[index] || 0; // Assign points or 0 if not present
+    }
+
+    // Sort results by points in descending order
+    results.sort((a, b) => {
+        if (b.points === a.points) {
+            return a.position - b.position; // Maintain order in case of ties
+        }
+        return b.points - a.points; // Sort by points descending
+    });
+
+    // Update positions based on points
+    let currentPosition = 1; // Start position from 1
+    for (let i = 0; i < results.length; i++) {
+        if (i > 0 && results[i].points !== results[i - 1].points) {
+            currentPosition = i + 1; // Update position only if points are different
+        }
+        results[i].position = currentPosition;
+        await results[i].save(); // Save updated document
+    }
+
+    isUpdating = false; // Reset flag after updates
+}
+
+// Function to update total points for each rider
+async function updateTotalPoints(riderId) {
+    const results = await Result.find({ riderID: riderId });
+    const totalPoints = results.reduce((sum, result) => sum + (result.points || 0), 0);
+    
+    await Rider.findOneAndUpdate({ id: riderId }, { totalPoints }, { new: true }); // Update total points for the rider
+    await updateRiderPositions(); // Update rider positions after total points update
+}
+
+async function updateRiderPositions() {
+    const riders = await Rider.find({}).sort({ totalPoints: -1 }); // Sort riders by totalPoints descending
+    for (let index = 0; index < riders.length; index++) {
+        riders[index].position = index + 1; // Position is index + 1
+        await riders[index].save(); // Save updated rider
+    }
+}
+
+
+// Middleware for updating results (save)
+ResultSchema.post('save', async function (doc) {
+    if (!isUpdating) {
+        await updatePointsForSession(doc.sessionId);
+        await updateTotalPoints(doc.riderID); // Update total points for the rider
+    }
+});
+
+
+// Middleware for updating results (updateMany)
+ResultSchema.post('findOneAndUpdate', async function(doc) {
+    if (!isUpdating && doc) {
+        await updatePointsForSession(doc.sessionId);
+        await updateTotalPoints(doc.riderID); // Update total points for the rider
+    }
+});
+
+// Middleware for deleting results (remove)
+ResultSchema.post('remove', async function(doc) {
+    if (!isUpdating) {
+    await updatePointsForSession(doc.sessionId);}
+    await updateTotalPoints(doc.riderID); // Update total points for the rider
+});
+
+// Middleware for updating results (update)
+ResultSchema.post('updateMany', async function(result) {
+    const sessionId = result.getFilter().sessionId; // Assuming you are passing sessionId in the filter
+    if (!isUpdating && sessionId) {
+        await updatePointsForSession(sessionId);
+        await updateTotalPoints(result.getFilter().riderID); // Update total points for the rider(s)
+    }
+});
+
+// Middleware for updating documents after findOneAndUpdate
+ResultSchema.post('findByIdAndUpdate', async function(doc) {
+    if (!isUpdating && doc) {
+        await updatePointsForSession(doc.sessionId);
+        await updateTotalPoints(doc.riderID); // Update total points for the rider
+    }
+});
+
+// Middleware for removing documents after findOneAndRemove
+ResultSchema.post('findOneAndRemove', async function(doc) {
+    if (!isUpdating && doc) {
+        await updatePointsForSession(doc.sessionId);
+        await updateTotalPoints(doc.riderID); // Update total points for the rider
+    }
+});
+
 
 const Result = mongoose.model('Result', ResultSchema);
 

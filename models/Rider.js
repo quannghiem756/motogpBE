@@ -10,7 +10,7 @@ const RiderSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: false
     },
     teamId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -48,6 +48,10 @@ const RiderSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    position: {
+        type: Number,
+        required: false
+    }
 });
 
 const Rider = mongoose.model('Rider', RiderSchema);
