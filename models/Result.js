@@ -101,9 +101,69 @@ function assignPoints(finishTimes, raceType) {
     return riderPoints;
 }
 
+async function updateTeamYearlyPoints(teamId) {
+    const team = await Team.findOne({ id: teamId });
+    if (!team) {
+        console.error("Team not found!");
+        return;
+    }
+
+    // Find all riders that belong to this team
+    const riders = await Rider.find({ teamId: teamId });
+
+    const years = new Set();
+
+    // Collect unique years from riders' results
+    for (const rider of riders) {
+        const results = await Result.find({ riderID: rider.id });
+        for (const result of results) {
+            const session = await Session.findOne({ id: result.sessionId });
+            if (session) {
+                const calendarEvent = await Calendar.findOne({ id: session.eventId });
+                if (calendarEvent) {
+                    const eventYear = new Date(calendarEvent.date_start).getFullYear();
+                    years.add(eventYear); // Add unique years
+                }
+            }
+        }
+    }
+
+    // Initialize or clear yearlyPoints for the team
+    team.yearlyPoints = {}
+
+    // Sum points for each year
+    for (const year of years) {
+        let totalYearPoints = 0;
+
+        for (const rider of riders) {
+            const results = await Result.find({ riderID: rider.id });
+
+            for (const result of results) {
+                const session = await Session.findOne({ id: result.sessionId });
+                if (session) {
+                    const calendarEvent = await Calendar.findOne({ id: session.eventId });
+                    if (calendarEvent) {
+                        const eventYear = new Date(calendarEvent.date_start).getFullYear();
+                        if (eventYear === year) {
+                            totalYearPoints += result.points || 0; // Sum points for the year
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update the team's yearly points for this year
+        team.yearlyPoints[year] = totalYearPoints; // Set total points for this year
+    }
+
+    await team.save(); // Save the updated team
+}
+
+
 // To track if an update is in progress
 
 let isUpdating = false; // Move this outside to control updates globally
+
 
 async function updatePointsForSession(sessionId) {
     if (isUpdating) return; // Prevent re-entry if updating is in progress
@@ -245,7 +305,6 @@ ResultSchema.pre('deleteOne', function(next) {
             riderIDtoUpdate = document.riderID
         }
         next();
-        console.log(sessionIdToUpdate)
     }).catch(next);
 });
 
