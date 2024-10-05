@@ -32,7 +32,7 @@ const Calendar = require('../models/Calendar');
 // });
 
 // Function to calculatePoints based on rider's time in each session
-
+    
 
 router.get('/api/result', async (req, res) => {
     try {

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const uuid = require('uuid');
 const Session = require('./Session') // Assuming session model is in the same directory
 const Rider = require('./Rider') // Assuming rider model is in the same directory
-
+const Calendar = require('./Calendar') // Assuming calendar model is in the same directory
 const ResultSchema = new mongoose.Schema({
     riderID: {
         type: String,
@@ -67,6 +67,7 @@ function convertTime(time) {
     return totalSeconds
 }
 
+
 function assignPoints(finishTimes, raceType) {
     const mainRacePoints = [25, 20, 16, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]; // Top 15 finishers
     const sprintRacePoints = [12, 9, 7, 6, 5, 4, 3, 2, 1]; // Top 9 finishers
@@ -84,7 +85,7 @@ function assignPoints(finishTimes, raceType) {
     } else if (raceType === 'SPR') {
         points = sprintRacePoints;
     } else {
-        throw new Error("Invalid race type. Choose either 'main' or 'sprint'.");
+        points = 0;
     }
 
     // Assign points to riders based on their finishing position
@@ -107,6 +108,7 @@ let isUpdating = false; // Move this outside to control updates globally
 async function updatePointsForSession(sessionId) {
     if (isUpdating) return; // Prevent re-entry if updating is in progress
 
+    // let isDeleted = false
     const session = await Session.findOne({ id: sessionId });
     if (!session) {
         console.error("Session not found.");
@@ -146,15 +148,66 @@ async function updatePointsForSession(sessionId) {
     isUpdating = false; // Reset flag after updates
 }
 
-// Function to update total points for each rider
 async function updateTotalPoints(riderId) {
-    const results = await Result.find({ riderID: riderId });
-    const totalPoints = results.reduce((sum, result) => sum + (result.points || 0), 0);
-    
-    await Rider.findOneAndUpdate({ id: riderId }, { totalPoints }, { new: true }); // Update total points for the rider
-    await updateRiderPositions(); // Update rider positions after total points update
+    const rider = await Rider.findOne({ id: riderId });
+
+    if (rider) {
+        // Find the results for the rider
+        const results = await Result.find({ riderID: riderId });
+        const years = new Set(); // To store unique years
+        
+        // Collect unique years from results
+        for (const result of results) {
+            const session = await Session.findOne({ id: result.sessionId });
+            if (session) {
+                const calendarEvent = await Calendar.findOne({ id: session.eventId }); // Assuming calendar events are linked
+                if (calendarEvent) {
+                    const eventYear = new Date(calendarEvent.date_start).getFullYear();
+                    years.add(eventYear); // Add the year to the Set for uniqueness
+                }
+            }
+        }
+        
+        
+         // Initialize yearlyPoints as a fresh object
+         rider.yearlyPoints = {};
+        
+        // Calculate total points for each year
+        for (const year of years) {
+            // Collect results for the current year
+            let totalYearPoints = 0;
+
+            for (const result of results) {
+                const session = await Session.findOne({ id: result.sessionId });
+                if (session) {
+                    const calendarEvent = await Calendar.findOne({ id: session.eventId });
+                    if (calendarEvent) {
+                        const eventYear = new Date(calendarEvent.date_start).getFullYear();
+
+                        if (eventYear === year) {
+                            // accumulate points for the current year
+                            totalYearPoints += result.points || 0; 
+                        }
+                    }
+                }
+            }
+
+            // Update the rider's yearly points
+            rider.yearlyPoints[year] = totalYearPoints; // Set total points for this year
+            console.log("year: ", year, "totalYearPoints: ", totalYearPoints); // Debugging output
+        }
+
+        // Recalculate totalPoints
+        rider.totalPoints = Object.values(rider.yearlyPoints).reduce((sum, points) => sum + points, 0);
+        await rider.save(); // Save the updated rider
+    }
+
+    await updateRiderPositions(); // Update rider positions if needed
 }
 
+
+
+// Function to update rider positions based on total points
 async function updateRiderPositions() {
     const riders = await Rider.find({}).sort({ totalPoints: -1 }); // Sort riders by totalPoints descending
     for (let index = 0; index < riders.length; index++) {
@@ -181,12 +234,30 @@ ResultSchema.post('findOneAndUpdate', async function(doc) {
     }
 });
 
-// Middleware for deleting results (remove)
-ResultSchema.post('remove', async function(doc) {
-    if (!isUpdating) {
-    await updatePointsForSession(doc.sessionId);}
-    await updateTotalPoints(doc.riderID); // Update total points for the rider
+let sessionIdToUpdate; // Store sessionId to update
+let riderIDtoUpdate
+// Middleware for deleting results (pre)
+ResultSchema.pre('deleteOne', function(next) {
+    const doc = this.getFilter(); // Get the filter object for deletion
+    this.model.findOne(doc).then(document => {
+        if (document) {
+            sessionIdToUpdate = document.sessionId; // Store the sessionId
+            riderIDtoUpdate = document.riderID
+        }
+        next();
+        console.log(sessionIdToUpdate)
+    }).catch(next);
 });
+
+// Middleware for deleting results (post)
+ResultSchema.post('deleteOne', async function() {
+    if (!isUpdating && sessionIdToUpdate) {
+        await updatePointsForSession(sessionIdToUpdate); // Update points for the session
+        await updateTotalPoints(riderIDtoUpdate); // Update rider positions after the deletion
+    }
+    sessionIdToUpdate = null; // Reset after processing
+});
+
 
 // Middleware for updating results (update)
 ResultSchema.post('updateMany', async function(result) {

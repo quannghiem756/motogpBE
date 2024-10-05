@@ -51,7 +51,11 @@ const RiderSchema = new mongoose.Schema({
     position: {
         type: Number,
         required: false
-    }
+    },
+    yearlyPoints: {
+        type: Object, // Use a simple object instead of Map
+        default: {}
+    },
 });
 
 const Rider = mongoose.model('Rider', RiderSchema);
