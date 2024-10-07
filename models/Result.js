@@ -3,6 +3,7 @@ const uuid = require('uuid');
 const Session = require('./Session') // Assuming session model is in the same directory
 const Rider = require('./Rider') // Assuming rider model is in the same directory
 const Calendar = require('./Calendar') // Assuming calendar model is in the same directory
+const Teams = require('./Teams')
 const ResultSchema = new mongoose.Schema({
     riderID: {
         type: String,
@@ -102,7 +103,7 @@ function assignPoints(finishTimes, raceType) {
 }
 
 async function updateTeamYearlyPoints(teamId) {
-    const team = await Team.findOne({ id: teamId });
+    const team = await Teams.findOne({ id: teamId });
     if (!team) {
         console.error("Team not found!");
         return;
@@ -196,14 +197,18 @@ async function updatePointsForSession(sessionId) {
     });
 
     // Update positions based on points
-    let currentPosition = 1; // Start position from 1
-    for (let i = 0; i < results.length; i++) {
-        if (i > 0 && results[i].points !== results[i - 1].points) {
-            currentPosition = i + 1; // Update position only if points are different
+    const finishTimes1 = results.map(result => convertTime(result.time));
+
+        // Sort the results based on finishing times
+        const sortedResults = results.map((result, index) => ({ result, time: finishTimes1 [index] }))
+            .sort((a, b) => a.time - b.time)
+            .map(item => item.result);
+
+        // Now update the positions based on finishing times
+        for (let i = 0; i < sortedResults.length; i++) {
+            sortedResults[i].position = i + 1; // 1-based position
+            await sortedResults[i].save(); // Save the updated position
         }
-        results[i].position = currentPosition;
-        await results[i].save(); // Save updated document
-    }
 
     isUpdating = false; // Reset flag after updates
 }
@@ -259,7 +264,9 @@ async function updateTotalPoints(riderId) {
 
         // Recalculate totalPoints
         rider.totalPoints = Object.values(rider.yearlyPoints).reduce((sum, points) => sum + points, 0);
+        console.log("Rider object ouput: ", rider)
         await rider.save(); // Save the updated rider
+        await updateTeamYearlyPoints(rider.teamId); // Update team's yearly points
     }
 
     await updateRiderPositions(); // Update rider positions if needed
@@ -346,4 +353,4 @@ ResultSchema.post('findOneAndRemove', async function(doc) {
 
 const Result = mongoose.model('Result', ResultSchema);
 
-module.exports = Result;
+module.exports = {updatePointsForSession, updateTotalPoints ,Result};

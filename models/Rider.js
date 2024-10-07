@@ -13,7 +13,7 @@ const RiderSchema = new mongoose.Schema({
         required: false
     },
     teamId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Team'
     },
     constructor_name: {
@@ -25,7 +25,7 @@ const RiderSchema = new mongoose.Schema({
         require: true
     },
     year: {
-        type: Number,
+        type: Number,   
         require: true
     },
     totalPoints: {
