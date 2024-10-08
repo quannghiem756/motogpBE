@@ -1,7 +1,7 @@
 // routes/resultController.js
 const express = require('express');
 const router = express.Router();
-const Result = require('../models/Result');
+const {updatePointsForSession, updateTotalPointsForAllRiders,Result} = require('../models/Result');
 const Calendar = require('../models/Calendar');
 
 // Function to fetch results for a specific session within a specific calendar event
@@ -73,6 +73,30 @@ router.put('/api/result/:id', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+
+// Route to update points for a session and all riders
+router.post('/api/updatePoints/:sessionId', async (req, res) => {
+    try {
+        const sessionId  = req.params.sessionId; // Assume sessionId is provided in the request body
+        
+        if (!sessionId) {
+            return res.status(400).json({ message: 'sessionId is required' });
+        }
+
+        await updatePointsForSession(sessionId);
+        await updateTotalPointsForAllRiders();
+
+        return res.status(200).json({ message: 'Points updated successfully' });
+    } catch (error) {
+        // Do nothing
+    } finally {
+        return res.status(200).json({ message: 'Points updated successfully' });
+    }
+});
+
+module.exports = router;
+
 
 // Function to create a new result
 // router.post('/api/result', async (req, res) => {
