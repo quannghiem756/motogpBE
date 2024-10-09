@@ -5,7 +5,7 @@ const ResultSchema = new mongoose.Schema({
     riderID: {
         type: String,
         required: true,
-        ref: 'Rider' // Assuming you have a Rider model
+        ref: 'Rider' 
     },
     id:{
         type: String,
