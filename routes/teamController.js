@@ -1,10 +1,10 @@
 // routes/teamController.js
 const express = require('express');
-const Team = require('../models/Teams'); // Đường dẫn đến mô hình Team
+const Team = require('../models/Team'); // Path to Team model
 
 const router = new express.Router();
 
-// Tạo đội mới
+// Create a new team
 router.post('/api/teams', async (req, res) => {
     try {
         const team = new Team(req.body);
@@ -15,7 +15,7 @@ router.post('/api/teams', async (req, res) => {
     }
 });
 
-// Lấy danh sách tất cả đội
+// Get a list of all teams
 router.get('/api/teams', async (req, res) => {
     try {
         const teams = await Team.find();
@@ -25,10 +25,10 @@ router.get('/api/teams', async (req, res) => {
     }
 });
 
-// Lấy đội theo ID
+// Get a team by ID
 router.get('/api/teams/:id', async (req, res) => {
     try {
-        const team = await Team.findOne({ _id: req.params.id });
+        const team = await Team.findOne({ id: req.params.id });
         if (!team) {
             return res.status(404).send('Team not found');
         }
@@ -38,10 +38,14 @@ router.get('/api/teams/:id', async (req, res) => {
     }
 });
 
-// Cập nhật đội theo ID
+// Update a team by ID
 router.patch('/api/teams/:id', async (req, res) => {
     try {
-        const updatedTeam = await Team.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true, runValidators: true });
+        const updatedTeam = await Team.findOneAndUpdate(
+            { id: req.params.id },
+            req.body,
+            { new: true, runValidators: true }
+        );
         if (updatedTeam) {
             res.status(200).json(updatedTeam);
         } else {
@@ -49,6 +53,20 @@ router.patch('/api/teams/:id', async (req, res) => {
         }
     } catch (error) {
         res.status(500).send(error);
+    }
+});
+
+// Delete a team by ID
+router.delete('/api/teams/:id', async (req, res) => {
+    try {
+        const deletedTeam = await Team.findOneAndDelete({ id: req.params.id });
+        if (!deletedTeam) {
+            return res.status(404).send('Team not found');
+        }
+        res.status(200).send(deletedTeam); // You can send back the deleted team data if needed
+    } catch (error) {
+        res.status(500).send(error);
+        console.log(error);
     }
 });
 
