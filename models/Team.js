@@ -57,6 +57,9 @@
     //   type: Date,
     //   default: Date.now
     // }
+    yearlyPoints: {
+      type: Object, // { year: points }
+      default: {}
   });
 
   const Team = mongoose.model('Team', TeamSchema);
