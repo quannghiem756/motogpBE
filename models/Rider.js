@@ -8,10 +8,6 @@ const RiderSchema = new mongoose.Schema({
         unique: true,
         default: () => uuid.v4()
     },
-    driverNb: {
-        type: String,
-        required: true
-    },
     name: {
         type: String,
         required: false
@@ -32,11 +28,11 @@ const RiderSchema = new mongoose.Schema({
         type: Number,
         require: false
     },
-    totalPoints: {      //current season point
+    totalPoints: {
         type: Number,
         default: 0
     },
-    position: {     //current season postion
+    position: {
         type: Number,
         required: false
     },
@@ -48,7 +44,6 @@ const RiderSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    
     imageUrl: {
         type: String,
         required: false
