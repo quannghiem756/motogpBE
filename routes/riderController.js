@@ -11,7 +11,6 @@ router.post('/api/riders', async (req, res) => {
         res.status(201).send(rider);
     } catch (error) {
         res.status(400).send(error);
-        console.log(error);
     }
 });
 
@@ -19,7 +18,6 @@ router.post('/api/riders', async (req, res) => {
 router.get('/api/riders', async (req, res) => {
     try {
         const riders = await Rider.find();
-        console.log('fetch all');
         res.status(200).send(riders);
     } catch (error) {
         res.status(500).send(error);
@@ -39,26 +37,19 @@ router.get('/api/riders/:id', async (req, res) => {
     }
 });
 
-// Example PUT route to update a rider by ID
+// Cập nhật tay đua theo ID
 router.patch('/api/riders/:id', async (req, res) => {
     try {
-      const updatedRider = await Rider.findOneAndUpdate( //method from monogodb
-        { id: req.params.id }, // Search condition (find rider by ID)
-        req.body,              // Updated rider data from the request body
-        { new: true, runValidators: true } // Options: 'new' to return the updated document, 'runValidators' to enforce schema validation
-      );
-      
-      if (!updatedRider) {
-        return res.status(404).send('Rider not found');
-      }
-      
-      res.status(200).json(updatedRider);
-      console.log('update done');
+        const updatedRider = await Rider.findOneAndUpdate({ id: req.params.id }, req.body, { new: true, runValidators: true });
+        if (updatedRider) {
+            res.status(200).json(updatedRider);
+        } else {
+            res.status(404).json({ message: 'Rider not found' });
+        }
     } catch (error) {
-      res.status(400).json({ error: error.message });
-      console.log(error);
+        res.status(400).json({ error: error.message });
     }
-  });
+});
 
 // Xóa tay đua theo ID
 router.delete('/api/riders/:id', async (req, res) => {

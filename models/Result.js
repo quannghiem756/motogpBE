@@ -8,7 +8,7 @@ const ResultSchema = new mongoose.Schema({
     riderID: {
         type: String,
         required: true,
-        ref: 'Rider' 
+        ref: 'Rider' // Assuming you have a Rider model
     },
     id:{
         type: String,
