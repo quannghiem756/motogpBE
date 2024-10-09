@@ -1,6 +1,6 @@
 // routes/teamController.js
 const express = require('express');
-const Team = require('../models/Teams'); // Đường dẫn đến mô hình Team
+const Team = require('../models/Team'); // Đường dẫn đến mô hình Team
 
 const router = new express.Router();
 

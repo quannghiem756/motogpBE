@@ -3,7 +3,7 @@ const uuid = require('uuid');
 const Session = require('./Session') // Assuming session model is in the same directory
 const Rider = require('./Rider') // Assuming rider model is in the same directory
 const Calendar = require('./Calendar') // Assuming calendar model is in the same directory
-const Teams = require('./Teams') // Assuming team model is in the same directory
+const Teams = require('./Team') // Assuming team model is in the same directory
 const ResultSchema = new mongoose.Schema({
     riderID: {
         type: String,

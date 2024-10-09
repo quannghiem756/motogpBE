@@ -13,10 +13,10 @@ const TeamSchema = new mongoose.Schema({
   description: {
     type: String
   },
-  riders: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Rider'
-  }],
+  // riders: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Rider'
+  // }],
   championships: {
     type: Number,
     default: 0
@@ -48,14 +48,14 @@ const TeamSchema = new mongoose.Schema({
   tyreSupplier: {
     type: String
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
+  // createdAt: {
+  //   type: Date,
+  //   default: Date.now
+  // },
+  // updatedAt: {
+  //   type: Date,
+  //   default: Date.now
+  // },
   yearlyPoints: {
     type: Object, // { year: points }
     default: {}
