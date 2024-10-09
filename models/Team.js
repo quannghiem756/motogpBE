@@ -57,7 +57,7 @@
     //   type: Date,
     //   default: Date.now
     // }
-    
+
     yearlyPoints: {
     type: Object, // { year: points }
     default: {}
