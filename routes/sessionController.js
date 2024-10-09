@@ -37,6 +37,8 @@ router.get('/api/sessions/:id', async (req, res) => {
     }
 });
 
+
+
 // Update a session by ID
 router.put('/api/sessions/:id', async (req, res) => {
     try {

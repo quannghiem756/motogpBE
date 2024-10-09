@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const {updatePointsForSession, updateTotalPointsForAllRiders,Result} = require('../models/Result');
 const Calendar = require('../models/Calendar');
-
+const Session = require('../models/Session')
 // Function to fetch results for a specific session within a specific calendar event
 // router.get('/api/result', async (req, res) => {
 //     try {
@@ -36,8 +36,19 @@ const Calendar = require('../models/Calendar');
 
 router.get('/api/result', async (req, res) => {
     try {
-        const sessions = await Result.find();
-        res.send(sessions);
+        const {eventId, sessionName, category} = req.query; // Assume eventId and sessionId are provided in the request query parameters
+        if (eventId && sessionName) {
+            const session = await Session.findOne({eventId: eventId, sessionName: sessionName, category: category});
+            if (!session) {
+                return res.status(404).json({ message: 'Session not found'})
+            }
+            const results = await Result.find({ sessionId: session.id });
+            res.send(results)
+        } else{
+            const sessions = await Result.find();
+            res.send(sessions);
+        }
+       
     } catch (error) {
         res.status(500).send(error);
     }
