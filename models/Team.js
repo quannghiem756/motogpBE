@@ -48,6 +48,10 @@ const TeamSchema = new mongoose.Schema({
   tyreSupplier: {
     type: String
   },
+  bikeUrl: {
+    type: String,
+    required: true
+  },
   // createdAt: {
   //   type: Date,
   //   default: Date.now
@@ -59,7 +63,7 @@ const TeamSchema = new mongoose.Schema({
   yearlyPoints: {
     type: Object, // { year: points }
     default: {}
-},
+  },
 });
 const Team = mongoose.model('Team', TeamSchema);
 module.exports = Team;

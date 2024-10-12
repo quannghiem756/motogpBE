@@ -12,6 +12,10 @@ const RiderSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    driverNb: {
+        type: String,
+        required: true
+    },
     teamId: {
         type: String,
         ref: 'Team'
@@ -44,9 +48,13 @@ const RiderSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    riderUrl: {
+        type: String,
+        required: true
+    },
     imageUrl: {
         type: String,
-        required: false
+        required: true
     },
     position: {
         type: Number,
