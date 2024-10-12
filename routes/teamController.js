@@ -28,7 +28,7 @@ router.get('/api/teams', async (req, res) => {
 // Lấy đội theo ID
 router.get('/api/teams/:id', async (req, res) => {
     try {
-        const team = await Team.findOne({ _id: req.params.id });
+        const team = await Team.findOne({ id: req.params.id });
         if (!team) {
             return res.status(404).send('Team not found');
         }
@@ -41,14 +41,18 @@ router.get('/api/teams/:id', async (req, res) => {
 // Cập nhật đội theo ID
 router.patch('/api/teams/:id', async (req, res) => {
     try {
-        const updatedTeam = await Team.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true, runValidators: true });
+        const updatedTeam = await Team.findOneAndUpdate({ id: req.params.id }, req.body, { new: true, runValidators: true });
         if (updatedTeam) {
             res.status(200).json(updatedTeam);
         } else {
             res.status(404).json({ message: 'Team not found' });
         }
+
+        console.log('Sucesfully update');
+        console.log(updatedTeam);
     } catch (error) {
         res.status(500).send(error);
+        console.log(error);
     }
 });
 
