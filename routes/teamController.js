@@ -52,7 +52,7 @@ router.patch('/api/teams/:id', async (req, res) => {
         console.log(updatedTeam);
     } catch (error) {
         res.status(500).send(error);
-        console.log(error);
+        //console.log(error);
     }
 });
 
