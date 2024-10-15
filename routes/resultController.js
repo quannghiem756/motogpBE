@@ -63,6 +63,7 @@ router.post('/api/result', async (req, res) => {
         await result.save();
         res.status(201).send(result);
     } catch (error) {
+        //console.log(error);
         res.status(400).send(error);
     }
 });

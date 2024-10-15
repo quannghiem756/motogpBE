@@ -32,10 +32,10 @@ const ResultSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    flag: {
-        type: String,
-        required: true
-    },
+    // flag: {
+    //     type: String,
+    //     required: true
+    // },
     team: {
         type: String,
         required: true
@@ -52,20 +52,47 @@ const ResultSchema = new mongoose.Schema({
     
 });
 
+
+let isUpdating = false; // Move this outside to control updates globally
+
+
+//Support fuction--------------------------------------------
+
 function convertTime(time) {
+    console.log(time);
     const timeParts = time.split(':');
-    if (timeParts.length !== 2) {
-        throw new Error('Invalid time format. Expected format: m:s');
+
+    // Check if the provided time format is correct
+    if (timeParts.length !== 3) {
+        throw new Error('Invalid time format. Expected format: m:s:ms');
     }
 
-    const minutes = parseInt(timeParts[0], 10);
-    const seconds = parseFloat(timeParts[1], 10);
+    const minutes = parseInt(timeParts[0], 10); // Get minutes
+    const seconds = parseFloat(timeParts[1], 10); // Get seconds
+    const milliseconds = parseFloat(timeParts[2], 10); // Get milliseconds
 
-    // Convert total time to seconds
-    const totalSeconds = minutes * 60 + seconds;
+    // Convert total time to milliseconds
+    const totalMilliseconds = (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
 
-    return totalSeconds
+    return totalMilliseconds;
 }
+
+// function convertTime(time) {
+//     const timeParts = time.split(':');
+//     if (timeParts.length !== 2) {
+//         throw new Error('Invalid time format. Expected format: m:s');
+//     }
+
+//     const minutes = parseInt(timeParts[0], 10);
+//     const seconds = parseFloat(timeParts[1], 10);
+
+//     // Convert total time to seconds
+//     const totalSeconds = minutes * 60 + seconds;
+
+//     return totalSeconds
+// }
+
+
 
 
 function assignPoints(finishTimes, raceType) {
@@ -75,8 +102,7 @@ function assignPoints(finishTimes, raceType) {
     // Create an array of rider indices sorted by their finish times
     const sortedRiders = finishTimes
         .map((time, index) => ({ index, time }))
-        .sort((a, b) => a.time - b.time)
-        .map(rider => rider.index);
+        .sort((a, b) => a.time - b.time);
 
     // Select the appropriate points system
     let points;
@@ -85,18 +111,27 @@ function assignPoints(finishTimes, raceType) {
     } else if (raceType === 'SPR') {
         points = sprintRacePoints;
     } else {
-        points = 0;
+        points = [];
     }
 
     // Assign points to riders based on their finishing position
-    const riderPoints = {};
-    sortedRiders.forEach((riderIndex, position) => {
+    const riderPoints = Array(finishTimes.length).fill(0); // Default all to 0
+    let currentPoints = 0;
+    let lastTime = null;
+
+    sortedRiders.forEach(({ index, time }, position) => {
         if (position < points.length) {
-            riderPoints[riderIndex] = points[position];
-        } else {
-            riderPoints[riderIndex] = 0; // No points for riders outside the point positions
+            if (lastTime === null || time !== lastTime) {
+                currentPoints = points[position]; // Update the current points for new finish time
+            }
+            riderPoints[index] = currentPoints; // Assign points based on index
         }
+        lastTime = time; // Update lastTime to the current time
     });
+
+    console.log("Finish Times: ", finishTimes);
+    console.log("Sorted Riders: ", sortedRiders.map(r => `{index: ${r.index}, time: ${r.time}}`));
+    console.log("Assigned Points: ", riderPoints);
 
     return riderPoints;
 }
@@ -128,7 +163,7 @@ async function updateTeamYearlyPoints(teamId) {
         }
     }
 
-    // Initialize or clear yearlyPoints for the team
+    // Initialize or clear z for the team
     team.yearlyPoints = {}
 
     // Sum points for each year
@@ -162,7 +197,7 @@ async function updateTeamYearlyPoints(teamId) {
 
 // To track if an update is in progress
 
-let isUpdating = false; // Move this outside to control updates globally
+
 
 
 async function updatePointsForSession(sessionId) {
