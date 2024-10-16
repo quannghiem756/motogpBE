@@ -2,6 +2,22 @@ const express = require('express');
 const router = express.Router();
 const Calendar = require('../models/Calendar'); // Path to your Mongoose model
 
+async function findEventsByYearAndEndDate(year, endDate) {
+    try {
+        const earliestDate = `${year}-01-01`;
+
+        const events = await Calendar.find({
+            year: year,
+            date_start: { $gte: earliestDate, $lte: endDate },
+        }).sort({ date_start: 1 });
+
+        return events;
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        throw error; // Propagate the error to the route handler
+    }
+}
+
 // Create a new MotoGP event
 router.post('/api/calendar', async (req, res) => {
     try {
@@ -13,9 +29,14 @@ router.post('/api/calendar', async (req, res) => {
     }
 });
 
+
 // Get all MotoGP events
 router.get('/api/calendar', async (req, res) => {
     try {
+        const { year, endDate } = req.query;
+        if(year && endDate) {
+            const events = await findEventsByYearAndEndDate(year, endDate)
+        }
         const events = await Calendar.find();
         res.status(200).json(events);
     } catch (error) {

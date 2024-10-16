@@ -36,7 +36,7 @@ const CalendarSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    country_name: {
+    short_name: {
         type: String,
         required: true
     },

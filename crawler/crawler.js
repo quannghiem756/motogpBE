@@ -39,13 +39,15 @@ async function grabImageSources(url) {
       const eventImages = document.querySelectorAll('div.calendar-listing__track-image.js-circuit-image img');
       const riderImages = document.querySelectorAll('div.rider-image img');
       const flagImages = document.querySelectorAll('div.calendar-listing__location-flag img');
+      const teamImages = document.querySelectorAll('div.team-image img');
 
       return {
         sponsoredImages: Array.from(sponsoredImages).map(img => img.src),
         circuitTrackImages: Array.from(circuitTrackImages).map(img => img.src),
         eventImages: Array.from(eventImages).map(img => img.src),
         riderImages: Array.from(riderImages).map(img => img.src),
-        flagImages: Array.from(flagImages).map(img => img.src)
+        flagImages: Array.from(flagImages).map(img => img.src),
+        teamImages: Array.from(teamImages).map(img => img.src)
       };
     });
 
@@ -85,6 +87,10 @@ async function grabImageSources(url) {
       await saveImage(imageUrl, 'flagImage');
     }
 
+    for (const imageUrl of imageSources.teamImages) {
+      await saveImage(imageUrl, 'teamImage');
+    }
+
     return imageSources;
   } catch (error) {
     console.error(`Error fetching URL: ${error.message}`);
@@ -94,8 +100,9 @@ async function grabImageSources(url) {
 }
 
 const urlsToCrawl = [
-  'https://www.motogp.com/en/calendar',
-  'https://www.motogp.com/en/riders/motogp'
+  // 'https://www.motogp.com/en/calendar',
+  // 'https://www.motogp.com/en/riders/motogp'
+  'https://www.motogp.com/en/teams/motogp'
 ];
 
 Promise.all(urlsToCrawl.map(url => grabImageSources(url)))

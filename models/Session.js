@@ -25,6 +25,14 @@ const SessionSchema = new mongoose.Schema({
         default: () => uuid.v4(),
         ref: 'Calendar'
     },
+    time_start:{
+        type: String,
+        required: false
+    },
+    time_end:{
+        type: String,
+        required: false
+    }
 });
 
 

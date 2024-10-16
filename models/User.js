@@ -54,12 +54,14 @@ UserSchema.pre('save', async function (next) {
 // Find user by email and password
 UserSchema.statics.findByCredentials = async (email, password) => {
   try {
-    const user = await User.findOne({ email }).select('password');
+    const userPassword = await User.findOne({ email }).select('password');
+    const user = await User.findOne({ email});
+    console.log(user)
     if (!user) {
       throw new Error('Unable to login!');
     }
 
-    const isCorrect = await bcrypt.compare(password, user.password);
+    const isCorrect = await bcrypt.compare(password, userPassword.password);
 
     if (!isCorrect) {
       throw new Error('Unable to login!');

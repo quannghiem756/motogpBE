@@ -7,8 +7,8 @@ const jwt = require('jsonwebtoken');
 router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(req.body.email, req.body.password);
-    const token = jwt.sign({ userId: user._id, userRole: user.role }, 'secretKey', { expiresIn: '1h' });
-    res.status(302).send({ user: user, token });
+    const token = jwt.sign({ user }, 'secretKey', { expiresIn: '1h' });
+    res.status(302).send({ token });
   }
   catch (error) {
     res.status(400).json(error);
@@ -16,7 +16,7 @@ router.post('/users/login', async (req, res) => {
 })
 
 // CREATE
-router.post('/users', async (req, res) => {
+router.post('/users/registration', async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const user = new User({ name, email, password });
@@ -28,7 +28,7 @@ router.post('/users', async (req, res) => {
 });
 
 // READ ALL
-router.get('/users', async (req, res) => {
+router.get('/api/users', async (req, res) => {
   try {
     const users = await User.find().then((users) => {
       return users;
@@ -43,7 +43,7 @@ router.get('/users', async (req, res) => {
 });
 
 // READ ONE
-router.get('/users/:id', async (req, res) => {
+router.get('/api/users/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findById(id).then((user) => {
@@ -60,11 +60,11 @@ router.get('/users/:id', async (req, res) => {
 });
 
 // UPDATE
-router.put('/users/:id', async (req, res) => {
+router.put('/api/users/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const { name, email, password } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(id, { $set: { name, email, password } }, { new: true }).then((user) => {
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true }).then((user) => {
       return user;
     }).catch((err) => {
       console.error(err);
@@ -78,7 +78,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // DELETE
-router.delete('/users/:id', async (req, res) => {
+router.delete('/api/users/:id', async (req, res) => {
   try {
     const id = req.params.id;
     await User.findByIdAndRemove(id).then(() => {

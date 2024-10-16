@@ -22,7 +22,8 @@ async function fetchAndStoreMotoGPEvents() {
             season_id: event.season_id,
             year: event.year,
             circuit_name: event.circuit_name,
-            country_name: event.country_name
+            country_name: event.country_name,
+            short_name: event.short_name
         }));
 
         // Connect to MongoDB Atlas
@@ -65,7 +66,7 @@ async function fetchAndStoreMotoGPRiders() {
             id: rider.classification_id,
             constructor_name: rider.constructor_name,
             rider_country_iso: rider.rider_country_iso,
-            rider_full_name: rider.rider_full_name,
+            name: rider.rider_full_name,
             year: rider.year,
             points: rider.points,
             position: rider.position,

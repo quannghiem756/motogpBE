@@ -7,6 +7,7 @@ const imageRouter = require("./routes/imageController");
 const userRouter = require("./routes/userController");
 const sessionRouter = require("./routes/sessionController");
 const resultRouter = require("./routes/resultController");
+const newsScrape = require("./routes/newsScrape");
 require('./db/mongoose');
 const bodyParser = require('body-parser');
 const app = express();
@@ -24,6 +25,7 @@ app.use(imageRouter);
 app.use(userRouter);
 app.use(sessionRouter);
 app.use(resultRouter);
+app.use(newsScrape)
 // Serve static files from the React app
 //app.use(express.static(path.join(__dirname, '/build'))); 
 
