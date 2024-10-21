@@ -138,20 +138,28 @@ function assignPoints(finishTimes, raceType) {
 
 async function updateTeamYearlyPoints(teamId) {
     const team = await Teams.findOne({ _id: teamId });
+
     if (!team) {
-        console.error("Team not found!");
+        console.log('Team not found!');
         return;
     }
 
-    // Find all riders that belong to this team
-    const riders = await Rider.find({ teamId: teamId });
+    // Find all results that belong to this team
+    const results = await Result.find({ team: teamId }); // Fetch all results for the specified team
+
+    // Collect unique rider IDs from the results
+    const riderIdsInResults = results.map(result => result.riderID);
+    //console.log('Rider IDs in results for team:', riderIdsInResults);
+
+    // Filter riders from the Rider model that are in results
+    const riders = await Rider.find({ id: { $in: riderIdsInResults } });
 
     const years = new Set();
 
     // Collect unique years from riders' results
     for (const rider of riders) {
-        const results = await Result.find({ riderID: rider.id });
-        for (const result of results) {
+        const riderResults = await Result.find({ riderID: rider.id });
+        for (const result of riderResults) {
             const session = await Session.findOne({ id: result.sessionId });
             if (session) {
                 const calendarEvent = await Calendar.findOne({ id: session.eventId });
@@ -163,17 +171,19 @@ async function updateTeamYearlyPoints(teamId) {
         }
     }
 
-    // Initialize or clear z for the team
-    team.yearlyPoints = {}
+    //console.log("Unique years for Team:", years);
+
+    // Initialize or clear yearlyPoints for the team
+    team.yearlyPoints = {};
 
     // Sum points for each year
     for (const year of years) {
         let totalYearPoints = 0;
 
         for (const rider of riders) {
-            const results = await Result.find({ riderID: rider.id });
+            const riderResults = await Result.find({ riderID: rider.id });
 
-            for (const result of results) {
+            for (const result of riderResults) {
                 const session = await Session.findOne({ id: result.sessionId });
                 if (session) {
                     const calendarEvent = await Calendar.findOne({ id: session.eventId });
@@ -189,13 +199,12 @@ async function updateTeamYearlyPoints(teamId) {
 
         // Update the team's yearly points for this year
         team.yearlyPoints[year] = totalYearPoints; // Set total points for this year
+        console.log('Year Team:', year, 'Total Year Points:', totalYearPoints);
     }
-
+    
     await team.save(); // Save the updated team
 }
 
-
-// To track if an update is in progress
 
 
 
@@ -244,67 +253,72 @@ async function updatePointsForSession(sessionId) {
 }
 
 async function updateTotalPointsForAllRiders() {
+    const results = await Result.find(); // Fetch all results
+    const riders = await Rider.find(); // Fetch all riders
+
+
+    // Ensure results is not empty before iterating
+    console.log("Results before updating team points:", results);
+    if (results.length > 0) {
+        for (const result of results) {
+            console.log("Updating team points for team ID:", result.team);
+            await updateTeamYearlyPoints(result.team);
+            console.log("Successfully updated team yearly points");
+        }
+    } else {
+        console.log("No results available to update team points");
+    }
+
+    for (const rider of riders) {
+        if (rider) {
+            // Find the results for the rider
+            const results = await Result.find({ riderID: rider.id });
+            const years = new Set(); // To store unique years
+            
+            // Collect unique years from results
+            for (const result of results) {
+                const session = await Session.findOne({ id: result.sessionId });
+                if (session) {
+                    const calendarEvent = await Calendar.findOne({ id: session.eventId });
+                    if (calendarEvent) {
+                        const eventYear = new Date(calendarEvent.date_start).getFullYear();
+                        years.add(eventYear); // Add the year to the Set for uniqueness
+                    }
+                }
+            }
+
+            // Initialize yearlyPoints as a fresh object
+            rider.yearlyPoints = {};
+            
+            // Calculate total points for each year
+            for (const year of years) {
+                let totalYearPoints = 0;
     
-        const riders = await Rider.find();
-        for(const rider of riders){
-            if (rider) {
-                // Find the results for the rider
-                const results = await Result.find({ riderID: rider.id });
-                const years = new Set(); // To store unique years
-                
-                // Collect unique years from results
                 for (const result of results) {
                     const session = await Session.findOne({ id: result.sessionId });
                     if (session) {
-                        const calendarEvent = await Calendar.findOne({ id: session.eventId }); // Assuming calendar events are linked
+                        const calendarEvent = await Calendar.findOne({ id: session.eventId });
                         if (calendarEvent) {
                             const eventYear = new Date(calendarEvent.date_start).getFullYear();
-                            years.add(eventYear); // Add the year to the Set for uniqueness
-                        }
-                    }
-                }
-                
-                console.log("Unique years for rider:", years); // Debugging line
-                 // Initialize yearlyPoints as a fresh object
-                 rider.yearlyPoints = {};
-                
-                // Calculate total points for each year
-                for (const year of years) {
-                    // Collect results for the current year
-                    let totalYearPoints = 0;
-        
-                    for (const result of results) {
-                        const session = await Session.findOne({ id: result.sessionId });
-                        if (session) {
-                            const calendarEvent = await Calendar.findOne({ id: session.eventId });
-                            if (calendarEvent) {
-                                const eventYear = new Date(calendarEvent.date_start).getFullYear();
-                                console.log(eventYear);
-                                if (eventYear === year) {
-                                    // accumulate points for the current year
-                                    totalYearPoints += result.points || 0; 
-                                }
+                            if (eventYear === year) {
+                                // accumulate points for the current year
+                                totalYearPoints += result.points || 0; 
                             }
                         }
                     }
-        
-                    // Update the rider's yearly points
-                    rider.yearlyPoints[year] = totalYearPoints; // Set total points for this year
-                    console.log("year: ", year, "totalYearPoints: ", totalYearPoints); // Debugging output
                 }
-        
-                
-                    rider.totalPoints = Object.values(rider.yearlyPoints).reduce((sum, points) => sum + points, 0)
-                
-                // console.log("Rider object: ",rider)
-                await rider.save(); // Save the updated rider
-                await updateTeamYearlyPoints(rider.teamId)
-            }
-        }
     
+                // Update the rider's yearly points
+                rider.yearlyPoints[year] = totalYearPoints; // Set total points for this year
+                console.log('Year riders:', year, 'Total Year Points:', totalYearPoints);
+            }
+            
+            rider.totalPoints = Object.values(rider.yearlyPoints).reduce((sum, points) => sum + points, 0);
+            await rider.save(); // Save the updated rider
+            console.log("Successfully updated riders yearly points");
+        }
+    }
 }
-
-
 
 
 
