@@ -14,7 +14,7 @@ const RiderSchema = new mongoose.Schema({
     },
     driverNb: {
         type: String,
-        required: true
+        required: false
     },
     teamId: {
         type: String,
@@ -50,11 +50,11 @@ const RiderSchema = new mongoose.Schema({
     },
     riderUrl: {
         type: String,
-        required: true
+        required: false
     },
     imageUrl: {
         type: String,
-        required: true
+        required: false
     },
     yearlyPoints: {
         type: Object, // Use a simple object instead of Map
