@@ -233,9 +233,9 @@ async function updatePointsForSession(sessionId) {
 
     // Sort results by points in descending order
     results.sort((a, b) => {
-        if (b.points === a.points) {
-            return a.position - b.position; // Maintain order in case of ties
-        }
+        // if (b.points === a.points) {
+        //     return a.position - b.position; // Maintain order in case of ties
+        // }
         return convertTime(a.time) - convertTime(b.time); // Sort by points descending
     });
 
