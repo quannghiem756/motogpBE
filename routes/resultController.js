@@ -90,7 +90,7 @@ router.put('/api/result/:id', async (req, res) => {
 // Route to update points for a session and all riders
 router.post('/api/updatePoints/:sessionId', async (req, res) => {
     try {
-        const sessionId  = req.params.sessionId; // Assume sessionId is provided in the request body
+        const sessionId  = req.params.sessionId; // Get sessionId from params
         
         if (!sessionId) {
             return res.status(400).json({ message: 'sessionId is required' });
@@ -101,11 +101,11 @@ router.post('/api/updatePoints/:sessionId', async (req, res) => {
 
         return res.status(200).json({ message: 'Points updated successfully' });
     } catch (error) {
-        // Do nothing
-    } finally {
-        return res.status(200).json({ message: 'Points updated successfully' });
+        console.error(error); // Log the error for debugging
+        return res.status(500).json({ message: 'Internal server error' }); // Send a proper error response
     }
 });
+
 
 module.exports = router;
 

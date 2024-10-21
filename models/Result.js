@@ -236,7 +236,7 @@ async function updatePointsForSession(sessionId) {
         if (b.points === a.points) {
             return a.position - b.position; // Maintain order in case of ties
         }
-        return b.points - a.points; // Sort by points descending
+        return convertTime(a.time) - convertTime(b.time); // Sort by points descending
     });
 
     // Update positions based on points
