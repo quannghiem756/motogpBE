@@ -262,7 +262,7 @@ async function updateTotalPointsForAllRiders() {
     if (results.length > 0) {
         for (const result of results) {
             console.log("Updating team points for team ID:", result.team);
-            await updateTeamYearlyPoints(result.team);
+            updateTeamYearlyPoints(result.team);
             console.log("Successfully updated team yearly points");
         }
     } else {
