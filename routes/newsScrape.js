@@ -5,7 +5,13 @@ const axios = require('axios')
 router.get('/api/scrape', async (req, res) => {
     try {
       const response = await axios.get('https://us-central1-testing-410917.cloudfunctions.net/scrapeNews')
-      
+      console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    console.log('Response data:', response.data);
+
+    if (response.status !== 200) {
+        throw new Error(`Failed to retrieve data. Status code: ${response.status}`);
+    }
       // const browser = await puppeteer.launch();
       // const page = await browser.newPage();
       // await page.goto('https://www.motogp.com/en/news/latest-news');
