@@ -137,7 +137,7 @@ function assignPoints(finishTimes, raceType) {
 }
 
 async function updateTeamYearlyPoints(teamId) {
-    const team = await Teams.findOne({ _id: teamId });
+    const team = await Teams.findOne({ id: teamId });
     if (!team) {
         console.error("Team not found!");
         return;
@@ -279,7 +279,7 @@ async function updateTotalPointsForAllRiders() {
                             const calendarEvent = await Calendar.findOne({ id: session.eventId });
                             if (calendarEvent) {
                                 const eventYear = new Date(calendarEvent.date_start).getFullYear();
-                                console.log(eventYear);
+        
                                 if (eventYear === year) {
                                     // accumulate points for the current year
                                     totalYearPoints += result.points || 0; 
