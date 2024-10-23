@@ -26,17 +26,18 @@ app.use(userRouter);
 app.use(sessionRouter);
 app.use(resultRouter);
 app.use(newsScrape)
+
 // Serve static files from the React app
-//app.use(express.static(path.join(__dirname, '/build'))); 
+app.use(express.static(path.join(__dirname, '/build'))); 
 
 // Handle React routing, return all requests to React app
-// app.get('*', (req, res) => {
-// res.sendFile(path.join(__dirname, '/build', 'index.html'));
-// });
+app.get('*', (req, res) => {
+res.sendFile(path.join(__dirname, '/build', 'index.html'));
+});
 
 // Start server
 if (process.env.NODE_ENV !== 'test') {
-    const PORT = process.env.PORT || 3002;
+    const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 
