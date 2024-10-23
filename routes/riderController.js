@@ -107,7 +107,6 @@ router.get('/api/riderswithpoints/:year/:category/:champ', async (req, res) => {
         const riderIdsInResults = results.map(result => result.riderID);
         const teamIdsInResults = results.map(result => result.team)
         //console.log(teamIdsInResults);
-        //console.log(teamIdsInResults);
         // Filter riders that are in results and have a non-zero yearly point for the specified year
         const riders = await Rider.find({ id: { $in: riderIdsInResults } }) // Only fetch riders in results
             .sort({ [`yearlyPoints.${year}`]: -1 }) // Sort riders by points for the given year
